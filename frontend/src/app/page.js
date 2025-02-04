@@ -1,5 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+// const API_URL = "http://localhost:8000";
+const API_URL = "https://bilal-420-search-ship.hf.space";
 
 export default function Home() {
 	const [scholarships, setScholarships] = useState([]);
@@ -8,15 +11,38 @@ export default function Home() {
 		caste: "",
 		religion: "",
 	});
+	const [loadingStage, setLoadingStage] = useState(0);
+	const loadingMessages = [
+		"Initiating search...",
+		"Scanning scholarship database...",
+		"Analyzing eligibility criteria...",
+		"Almost there...",
+		"Finalizing results...",
+	];
+
+	useEffect(() => {
+		let interval;
+		if (isLoading) {
+			interval = setInterval(() => {
+				setLoadingStage((prev) =>
+					prev < loadingMessages.length - 1 ? prev + 1 : prev
+				);
+			}, 8000); // Change message every 6 seconds
+		} else {
+			setLoadingStage(0);
+		}
+		return () => clearInterval(interval);
+	}, [isLoading]);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setIsLoading(true);
 		try {
+			const query = `College scholarships for ${formData.caste} students ${
+				formData.religion ? `from ${formData.religion} religion` : ""
+			}`;
 			const response = await fetch(
-				`http://localhost:8000/search?query=${encodeURIComponent(
-					`College scholarships for ${formData.caste} students`
-				)}`,
+				`${API_URL}/search?query=${encodeURIComponent(query)}`,
 				{
 					method: "GET",
 				}
@@ -44,15 +70,19 @@ export default function Home() {
 						<label htmlFor='caste' className='block text-sm font-medium mb-1'>
 							Caste
 						</label>
-						<input
-							type='text'
+						<select
 							id='caste'
 							className='w-full p-2 border rounded-md'
-							value={formData.caste}
+							value={formData.caste || "general"}
 							onChange={(e) =>
 								setFormData({ ...formData, caste: e.target.value })
 							}
-						/>
+						>
+							<option value='general'>General</option>
+							<option value='SC/ST'>SC/ST</option>
+							<option value='obc'>OBC</option>
+							<option value='other'>Other</option>
+						</select>
 					</div>
 					<div>
 						<label
@@ -69,6 +99,7 @@ export default function Home() {
 							onChange={(e) =>
 								setFormData({ ...formData, religion: e.target.value })
 							}
+							maxLength={20}
 						/>
 					</div>
 					<button
@@ -79,10 +110,25 @@ export default function Home() {
 					</button>
 				</form>
 
-				{/* Loading State */}
+				{/* Enhanced Loading State */}
 				{isLoading && (
-					<div className='flex justify-center items-center py-8'>
+					<div className='flex flex-col items-center justify-center py-8 space-y-4'>
 						<div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
+						<div className='text-center space-y-2'>
+							<p className='text-lg font-medium text-gray-700'>
+								{loadingMessages[loadingStage]}
+							</p>
+							<div className='w-48 h-2 bg-gray-200 rounded-full overflow-hidden'>
+								<div
+									className='h-full bg-blue-600 transition-all duration-500'
+									style={{
+										width: `${
+											((loadingStage + 1) / loadingMessages.length) * 100
+										}%`,
+									}}
+								></div>
+							</div>
+						</div>
 					</div>
 				)}
 
