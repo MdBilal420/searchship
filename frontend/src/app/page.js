@@ -84,7 +84,7 @@ export default function Home() {
 								</label>
 								<select
 									id='caste'
-									className='w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all'
+									className='w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700'
 									value={formData.caste}
 									onChange={(e) =>
 										setFormData({ ...formData, caste: e.target.value })
@@ -105,7 +105,7 @@ export default function Home() {
 								</label>
 								<input
 									id='religion'
-									className='w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all'
+									className='w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-gray-700'
 									value={formData.religion}
 									onChange={(e) =>
 										setFormData({ ...formData, religion: e.target.value })
