@@ -14,6 +14,15 @@ class Scholarship(BaseModel):
     description: str = Field(description="The description of the scholarship")
     application_link: str = Field(description="The link to the application for the scholarship")
     application_deadline: str = Field(description="The deadline to apply for the scholarship")
+    gpa_requirement: str = Field(description="The minimum GPA requirement", default="")
+    field_of_study: str = Field(description="Eligible fields of study", default="")
+    ethnicity: str = Field(description="Eligible ethnicities", default="")
+    gender: str = Field(description="Eligible gender", default="")
+    disability_status: str = Field(description="Disability eligibility", default="")
+    location: str = Field(description="Eligible locations", default="")
+    grade_level: str = Field(description="Eligible grade levels", default="")
+    financial_need: str = Field(description="Financial need requirements", default="")
+    extracurricular: str = Field(description="Required extracurricular activities", default="")
 
 class ExtractSchema(BaseModel):
     scholarships: List[Scholarship] = Field(description="Array of scholarship names found on the page")
@@ -39,7 +48,39 @@ def greet_json():
     return {"Hello": "World!"}
 
 @app.get("/search")
-async def search_and_extract(query: str) -> Dict:
+async def search_and_extract(
+    query: str,
+    gpa: str = None,
+    field: str = None,
+    ethnicity: str = None,
+    gender: str = None,
+    disability: str = None,
+    location: str = None,
+    grade_level: str = None,
+    financial_need: bool = None,
+    extracurricular: str = None
+) -> Dict:
+    # Build search query based on parameters
+    search_query = query
+    if gpa:
+        search_query += f" GPA {gpa}"
+    if field:
+        search_query += f" {field} major"
+    if ethnicity:
+        search_query += f" {ethnicity} students"
+    if gender:
+        search_query += f" {gender} students"
+    if disability:
+        search_query += f" students with disabilities"
+    if location:
+        search_query += f" in {location}"
+    if grade_level:
+        search_query += f" for {grade_level} students"
+    if financial_need:
+        search_query += " need-based"
+    if extracurricular:
+        search_query += f" with {extracurricular} activities"
+
     # Serper API configuration
     
     serper_api_key = os.getenv("SERPER_API_KEY","")
@@ -58,7 +99,7 @@ async def search_and_extract(query: str) -> Dict:
 
 
     payload = json.dumps({  # Convert dict to JSON string
-        "q": query,
+        "q": search_query,
         "gl": "in"
     })
 
@@ -86,11 +127,24 @@ async def search_and_extract(query: str) -> Dict:
 
         print("urls",urls)
         data = app.extract(urls, {
-            'prompt': 'Extract the name , description and application link, application deadline of the scholarships from the page.',
+            'prompt': '''Extract the following scholarship details:
+                - name
+                - description
+                - application link
+                - application deadline
+                - GPA requirements
+                - field of study requirements
+                - ethnicity eligibility
+                - gender eligibility
+                - disability eligibility
+                - location requirements
+                - grade level requirements
+                - financial need requirements
+                - extracurricular activity requirements''',
             'schema': ExtractSchema.model_json_schema(),
         })        
         return {
-            "query": query,
+            "query": search_query,
             "results": data
         }
 
