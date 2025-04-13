@@ -22,7 +22,7 @@ SearchShip is a modern web application that helps students find scholarships tai
 
 ## 🚀 Live Demo
 
-Try SearchShip at: [https://searchship-fe.vercel.app/](https://searchship.vercel.app/)
+Try SearchShip at: [https://searchship.vercel.app/](https://searchship.vercel.app/)
 
 ## 🛠️ Tech Stack
 
